@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dilo Fácil: aplicación de comunicación accesible. Tu voz, tu manera.">
+  <meta name="theme-color" content="#2f5d62">
+  <!-- Seguridad: solo se permiten recursos propios de la aplicación -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Dilo Fácil</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Saltar al contenido</a>
+
+  <header class="topbar">
+    <button type="button" class="brand" data-go="home" aria-label="Ir al inicio">
+      <span aria-hidden="true">💬</span> Dilo Fácil
+    </button>
+    <p class="motto">Tu voz, tu manera.</p>
+  </header>
+
+  <nav class="mainnav" aria-label="Secciones principales">
+    <button type="button" data-go="home"><span class="nav-ico" aria-hidden="true">🏠</span><span>Inicio</span></button>
+    <button type="button" data-go="quick"><span class="nav-ico" aria-hidden="true">⚡</span><span>Rápido</span></button>
+    <button type="button" data-go="write"><span class="nav-ico" aria-hidden="true">✏️</span><span>Escribir</span></button>
+    <button type="button" data-go="manage"><span class="nav-ico" aria-hidden="true">🗂️</span><span>Mis frases</span></button>
+    <button type="button" data-go="settings"><span class="nav-ico" aria-hidden="true">⚙️</span><span>Ajustes</span></button>
+  </nav>
+
+  <main id="main" tabindex="-1">
+    <!-- Barra de la frase seleccionada (siempre visible cuando hay una frase) -->
+    <section id="selected" class="selected" aria-live="polite" hidden>
+      <h2 class="visually-hidden">Frase seleccionada</h2>
+      <p id="selected-text" class="selected-text"></p>
+      <div id="selected-fields" class="fields"></div>
+      <div class="actions">
+        <button type="button" id="btn-speak" class="btn primary"><span aria-hidden="true">🔊</span> Leer en voz alta</button>
+        <button type="button" id="btn-copy" class="btn"><span aria-hidden="true">📋</span> Copiar</button>
+        <button type="button" id="btn-fav" class="btn" aria-pressed="false"><span aria-hidden="true">☆</span> Favorita</button>
+        <button type="button" id="btn-edit" class="btn"><span aria-hidden="true">✏️</span> Editar</button>
+        <button type="button" id="btn-close-sel" class="btn ghost">Cerrar</button>
+      </div>
+      <p id="speech-note" class="note" hidden></p>
+    </section>
+
+    <!-- INICIO -->
+    <section id="view-home" class="view" aria-labelledby="h-home">
+      <h1 id="h-home">¿Qué quieres decir?</h1>
+      <div id="home-favs-wrap">
+        <h2>⭐ Favoritas</h2>
+        <div id="home-favs" class="grid phrases"></div>
+      </div>
+      <div id="home-freq-wrap">
+        <h2>🕘 Usadas con frecuencia</h2>
+        <div id="home-freq" class="grid phrases"></div>
+      </div>
+      <h2>Categorías</h2>
+      <div id="home-cats" class="grid cats"></div>
+    </section>
+
+    <!-- CATEGORÍA -->
+    <section id="view-category" class="view" aria-labelledby="h-cat" hidden>
+      <div class="view-head">
+        <button type="button" class="btn ghost" data-go="home">← Volver</button>
+        <h1 id="h-cat"></h1>
+      </div>
+      <div id="cat-phrases" class="grid phrases"></div>
+      <p id="cat-empty" class="note" hidden>Esta categoría todavía no tiene frases. Puedes crearlas en «Mis frases».</p>
+      <button type="button" id="cat-add" class="btn">➕ Añadir frase a esta categoría</button>
+    </section>
+
+    <!-- MODO RÁPIDO -->
+    <section id="view-quick" class="view" aria-labelledby="h-quick" hidden>
+      <h1 id="h-quick">Modo rápido</h1>
+      <div id="quick-grid" class="grid phrases quick"></div>
+      <details class="panel">
+        <summary>Cambiar las frases del modo rápido</summary>
+        <p class="note">Elige qué frases aparecen aquí. Puedes poner hasta 12.</p>
+        <ul id="quick-list" class="list"></ul>
+        <label for="quick-add-select">Añadir una frase:</label>
+        <div class="row">
+          <select id="quick-add-select"></select>
+          <button type="button" id="quick-add" class="btn">Añadir</button>
+        </div>
+      </details>
+    </section>
+
+    <!-- ESCRIBIR -->
+    <section id="view-write" class="view" aria-labelledby="h-write" hidden>
+      <h1 id="h-write">Escribir un mensaje</h1>
+      <label for="free-text">Tu mensaje (no se envía a ningún sitio):</label>
+      <textarea id="free-text" rows="5" maxlength="2000"></textarea>
+      <div class="actions">
+        <button type="button" id="free-speak" class="btn primary">🔊 Leer en voz alta</button>
+        <button type="button" id="free-copy" class="btn">📋 Copiar</button>
+        <button type="button" id="free-save" class="btn">💾 Guardar mensaje</button>
+        <button type="button" id="free-bigger" class="btn">A+ Texto más grande</button>
+        <button type="button" id="free-smaller" class="btn">A− Texto más pequeño</button>
+        <button type="button" id="free-clear" class="btn danger">🗑️ Borrar</button>
+      </div>
+      <h2>Mensajes guardados</h2>
+      <ul id="saved-list" class="list"></ul>
+      <p id="saved-empty" class="note">Aún no has guardado mensajes.</p>
+    </section>
+
+    <!-- MIS FRASES -->
+    <section id="view-manage" class="view" aria-labelledby="h-manage" hidden>
+      <h1 id="h-manage">Mis frases</h1>
+      <button type="button" id="new-phrase" class="btn primary">➕ Crear una frase nueva</button>
+
+      <form id="phrase-form" class="panel" novalidate hidden>
+        <h2 id="form-title">Nueva frase</h2>
+        <input type="hidden" id="f-id">
+        <label for="f-label">Nombre de la frase (lo que verás en el botón)</label>
+        <input id="f-label" type="text" maxlength="80" autocomplete="off">
+        <label for="f-text">Texto que se mostrará y se leerá</label>
+        <textarea id="f-text" rows="3" maxlength="500"></textarea>
+        <p class="note">Consejo: escribe partes cambiables entre corchetes. Ejemplo: «Necesito [una pausa] porque [hay demasiado ruido].»</p>
+        <label for="f-cat">Categoría</label>
+        <select id="f-cat"></select>
+        <label for="f-icon">Icono (opcional, por ejemplo un emoji)</label>
+        <div class="row">
+          <input id="f-icon" type="text" maxlength="8" autocomplete="off">
+          <div id="icon-picks" class="icon-picks" role="group" aria-label="Iconos sugeridos"></div>
+        </div>
+        <label for="f-color">Color (opcional)</label>
+        <select id="f-color">
+          <option value="">Sin color</option>
+          <option value="blue">Azul</option>
+          <option value="green">Verde</option>
+          <option value="yellow">Amarillo</option>
+          <option value="purple">Morado</option>
+          <option value="red">Rojo</option>
+          <option value="grey">Gris</option>
+        </select>
+        <label class="check"><input id="f-speak" type="checkbox" checked> Permitir leerla en voz alta</label>
+        <label class="check"><input id="f-fav" type="checkbox"> Marcar como favorita</label>
+        <p id="form-error" class="error" role="alert" hidden></p>
+        <div class="actions">
+          <button type="submit" class="btn primary">💾 Guardar</button>
+          <button type="button" id="form-cancel" class="btn ghost">Cancelar</button>
+          <button type="button" id="form-delete" class="btn danger" hidden>🗑️ Eliminar</button>
+        </div>
+      </form>
+
+      <label for="manage-filter">Ver categoría:</label>
+      <select id="manage-filter"></select>
+      <ul id="manage-list" class="list"></ul>
+
+      <h2>Orden de las categorías</h2>
+      <ul id="cat-order" class="list"></ul>
+    </section>
+
+    <!-- AJUSTES -->
+    <section id="view-settings" class="view" aria-labelledby="h-settings" hidden>
+      <h1 id="h-settings">Ajustes</h1>
+
+      <fieldset class="panel">
+        <legend>Aspecto</legend>
+        <label for="s-theme">Tema visual</label>
+        <select id="s-theme">
+          <option value="light">Claro</option>
+          <option value="dark">Oscuro</option>
+          <option value="calm">Bajo estímulo visual</option>
+          <option value="contrast">Alto contraste</option>
+        </select>
+        <label for="s-font">Tamaño de la letra</label>
+        <select id="s-font">
+          <option value="0.9">Pequeño</option>
+          <option value="1">Normal</option>
+          <option value="1.2">Grande</option>
+          <option value="1.45">Muy grande</option>
+        </select>
+        <label for="s-btn">Tamaño de los botones</label>
+        <select id="s-btn">
+          <option value="s">Pequeños</option>
+          <option value="m">Medianos</option>
+          <option value="l">Grandes</option>
+          <option value="xl">Muy grandes</option>
+        </select>
+        <label for="s-cols">Botones por fila (máximo)</label>
+        <select id="s-cols">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+        </select>
+        <label class="check"><input id="s-icons" type="checkbox"> Mostrar iconos en los botones</label>
+      </fieldset>
+
+      <fieldset class="panel">
+        <legend>Voz</legend>
+        <p id="voice-support" class="note"></p>
+        <label class="check"><input id="s-voice" type="checkbox"> Activar la lectura en voz alta</label>
+        <label for="s-voice-select">Voz</label>
+        <select id="s-voice-select"></select>
+        <label for="s-rate">Velocidad de la voz</label>
+        <input id="s-rate" type="range" min="0.5" max="1.5" step="0.1">
+        <button type="button" id="s-voice-test" class="btn">🔊 Probar la voz</button>
+        <p class="note">El volumen se cambia con los botones de volumen de tu dispositivo.</p>
+      </fieldset>
+
+      <fieldset class="panel">
+        <legend>Copia de seguridad</legend>
+        <p class="note">Tus datos se guardan solo en este navegador. Si borras los datos del navegador, se pueden perder. Haz copias de seguridad de vez en cuando.</p>
+        <div class="actions">
+          <button type="button" id="export" class="btn">⬇️ Exportar copia (JSON)</button>
+          <label class="btn" for="import-file">⬆️ Importar / restaurar copia</label>
+          <input id="import-file" class="visually-hidden" type="file" accept="application/json,.json">
+        </div>
+        <p id="import-msg" class="note" role="status"></p>
+        <button type="button" id="reset" class="btn danger">🗑️ Borrar todos los datos</button>
+      </fieldset>
+
+      <div class="actions">
+        <button type="button" class="btn" data-go="install">📲 Cómo instalar la aplicación</button>
+        <button type="button" class="btn" data-go="privacy">🔒 Privacidad</button>
+      </div>
+    </section>
+
+    <!-- INSTALAR -->
+    <section id="view-install" class="view" aria-labelledby="h-install" hidden>
+      <div class="view-head">
+        <button type="button" class="btn ghost" data-go="settings">← Volver</button>
+        <h1 id="h-install">Instalar Dilo Fácil</h1>
+      </div>
+      <div class="panel prose">
+        <p id="offline-status" class="note"></p>
+        <button type="button" id="install-btn" class="btn primary" hidden>📲 Instalar ahora</button>
+        <h2>Android (Chrome o Edge)</h2>
+        <p>Abre el menú (⋮) y elige «Instalar aplicación» o «Añadir a pantalla de inicio».</p>
+        <h2>iPhone y iPad (Safari)</h2>
+        <p>Pulsa el botón Compartir (cuadrado con flecha) y elige «Añadir a pantalla de inicio».</p>
+        <h2>Ordenador (Chrome o Edge)</h2>
+        <p>Pulsa el icono de instalar en la barra de direcciones, o el menú → «Instalar Dilo Fácil».</p>
+        <h2>Firefox</h2>
+        <p>Firefox de escritorio no permite instalar aplicaciones web. Puedes usarla igualmente en el navegador y guardarla en marcadores.</p>
+        <h2>Sin conexión</h2>
+        <p>Después de abrirla una vez con internet, la aplicación guarda sus archivos y puede funcionar sin conexión. La voz depende del dispositivo: algunas voces necesitan internet.</p>
+      </div>
+    </section>
+
+    <!-- PRIVACIDAD -->
+    <section id="view-privacy" class="view" aria-labelledby="h-privacy" hidden>
+      <div class="view-head">
+        <button type="button" class="btn ghost" data-go="settings">← Volver</button>
+        <h1 id="h-privacy">Privacidad</h1>
+      </div>
+      <div class="panel prose">
+        <p><strong>No necesitas una cuenta.</strong> Dilo Fácil no te pide nombre, correo ni teléfono.</p>
+        <p><strong>Tus frases se quedan en tu dispositivo.</strong> Se guardan en el almacenamiento local de este navegador. La aplicación no las envía a ningún servidor.</p>
+        <p><strong>Sin publicidad ni rastreadores.</strong> No hay analítica ni anuncios.</p>
+        <p><strong>La voz.</strong> La lectura en voz alta usa las voces de tu dispositivo o navegador. Algunas voces del navegador (por ejemplo, las voces «en línea» de algunos navegadores) pueden procesar el texto en servidores del fabricante del navegador. Si te preocupa, elige una voz local en Ajustes.</p>
+        <p><strong>Límites.</strong> Los datos no se sincronizan entre dispositivos. Si borras los datos del navegador, usas el modo privado o desinstalas el navegador, tus frases pueden perderse. Exporta una copia de seguridad para conservarlas.</p>
+        <p><strong>Datos sensibles.</strong> Tus frases pueden ser personales. Cualquier persona con acceso a este dispositivo podría verlas. Guarda los archivos de copia en un lugar seguro.</p>
+        <p>Dilo Fácil es una herramienta de comunicación. No es una herramienta de diagnóstico ni de tratamiento médico.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Diálogo de confirmación accesible -->
+  <dialog id="confirm" aria-labelledby="confirm-text">
+    <p id="confirm-text"></p>
+    <div class="actions">
+      <button type="button" id="confirm-yes" class="btn danger">Sí</button>
+      <button type="button" id="confirm-no" class="btn">No, cancelar</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/speech.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
