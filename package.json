@@ -1,0 +1,14 @@
+{
+  "name": "dilo-facil",
+  "version": "1.0.0",
+  "description": "Dilo Fácil: comunicación accesible. Tu voz, tu manera.",
+  "private": true,
+  "scripts": {
+    "start": "node tests/server.js",
+    "test": "node tests/e2e.test.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  },
+  "license": "MIT"
+}
